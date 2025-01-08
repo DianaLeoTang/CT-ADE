@@ -59,6 +59,7 @@ Ensure you clone and install the following libraries directly from their Git rep
 ├── g0_create_ct_ade_raw.py
 ├── g1_create_ct_ade_meddra.py
 ├── g2_create_ct_ade_classification_datasets.py
+├── g3_create_ct_ade_friendly_labels.py
 ├── modeling
 │   ├── DLLMs
 │   │   ├── config.py
