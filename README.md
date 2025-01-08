@@ -97,7 +97,7 @@ The above datasets are identical to the SOC and PT versions you will produce in 
 
 Follow this procedure if you aim to recreate the dataset detailed in our paper (CT-ADE-SOC, CT-ADE-PT).
 
-### 1. Place your licensed data
+### 1. Place your data
 Place your unzipped MedDRA files in the directory `./data/MedDRA_25_0_English` and your DrugBank XML database in the directory `./data/drugbank`.
 
 ### 2. Download checkpoint from HuggingFace
