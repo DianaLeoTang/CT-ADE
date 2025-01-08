@@ -283,16 +283,17 @@ def chunk_dict(data: Dict[str, T], num_chunks: int) -> Iterator[Dict[str, T]]:
 
 
 def process_trial_group(
-    candidate_data: Tuple[List[str], List[Set[str]], List[str], List[str]],
+    candidate_data: Tuple[List[str], List[Set[str]], List[str], List[str], List[str]],
     trial_chunk: Dict[str, Any],
     match_function: Callable[[Set[str], Set[str]], Any],
     sanitize: bool,
 ) -> Tuple[Dict[str, Any], Set[str], Set[str]]:
     """
-    Processes a chunk of trial data to map drug IDs to intervention details using predefined synonyms and titles.
+    Processes a chunk of trial data to map drug IDs to intervention details using predefined synonyms, titles, ATC codes, and sources.
 
     Args:
-        candidate_data (Tuple[List[str], List[Set[str]], List[str], List[str]]): Precomputed data consisting of drug IDs, their synonyms, titles, and ATC codes.
+        candidate_data (Tuple[List[str], List[Set[str]], List[str], List[str], List[str]]):
+            Precomputed data including drug IDs, their synonyms, titles, ATC codes, and sources.
         trial_chunk (Dict[str, Any]): A chunk of trial data containing information about clinical trials.
         match_function (Callable[[Set[str], Set[str]], Any]): The matching function used to find corresponding synonyms.
         sanitize (bool): Flag indicating whether drug names should be sanitized before matching.
@@ -307,7 +308,9 @@ def process_trial_group(
         candidate_drug_ids_synonyms,
         candidate_drug_ids_titles,
         candidate_drug_ids_atc_codes,
+        candidate_sources,
     ) = candidate_data
+
     mapped_study_group_codes = set()
     unique_smiles_mapped = set()
     modified_trial_data = {}
@@ -326,11 +329,12 @@ def process_trial_group(
                 sanitize=sanitize,
             )
 
-            for drug_id, synonyms, title, atc_code in zip(
+            for drug_id, synonyms, title, atc_code, source in zip(
                 all_drug_ids,
                 candidate_drug_ids_synonyms,
                 candidate_drug_ids_titles,
                 candidate_drug_ids_atc_codes,
+                candidate_sources,
             ):
                 matched_name = match_function(synonyms, intervention_synonyms)
                 if matched_name:
@@ -344,6 +348,7 @@ def process_trial_group(
                                 "canonical_name": canonical_name,
                                 "drug_id": drug_id,
                                 "smiles": smiles,
+                                "drug_info_source": source,
                                 "atc_code": atc_code,
                             }
                         )
@@ -361,7 +366,7 @@ def process_matching_multiprocessing(
     num_processes: Optional[int] = None,
 ) -> Tuple[Dict[str, Any], Set[str], Set[str]]:
     """
-    Processes trial data in parallel to match drug synonyms and maps additional data such as SMILES and ATC codes.
+    Processes trial data in parallel to match drug synonyms and maps additional data such as SMILES, ATC codes, and sources.
 
     Args:
         trial_data (Dict[str, Any]): Dictionary containing trial details.
@@ -392,6 +397,7 @@ def process_matching_multiprocessing(
         ],
         [get_title(drug_id_details, drug_id) for drug_id in all_drug_ids],
         [get_atc_code(drug_id_details, drug_id) for drug_id in all_drug_ids],
+        [drug_id_details[drug_id].get("drug_info_source") for drug_id in all_drug_ids],
     )
 
     # Split trial data into chunks for multiprocessing
@@ -477,7 +483,7 @@ def collect_mapped_study_groups(
 
 def tabularize_study_groups(study_groups: List[Dict[str, Any]]) -> pd.DataFrame:
     """
-    Processes a list of clean and mapped study groups, extracting relevant data and adverse events,
+    Processes a list of clean and mapped study groups, extracting relevant data and sources,
     then compiling this information into a DataFrame.
 
     Args:
@@ -486,7 +492,7 @@ def tabularize_study_groups(study_groups: List[Dict[str, Any]]) -> pd.DataFrame:
 
     Returns:
         pd.DataFrame: A DataFrame containing the processed data from each study group, including details
-                      on adverse events.
+                      on adverse events and sources.
     """
     # Initialize an empty list to store row data
     data_rows = []
@@ -511,6 +517,7 @@ def tabularize_study_groups(study_groups: List[Dict[str, Any]]) -> pd.DataFrame:
             "group_description": group["intervention_details"]["description"],
             "ct_intervention_name": group["intervention_details"]["name"][0],
             "canonical_name": group["intervention_details"]["canonical_name"],
+            "drug_info_source": group["intervention_details"]["drug_info_source"],
             "drug_id": group["intervention_details"]["drug_id"],
             "smiles": group["intervention_details"]["smiles"],
             "atc_code": group["intervention_details"]["atc_code"],
@@ -561,13 +568,55 @@ def tabularize_study_groups(study_groups: List[Dict[str, Any]]) -> pd.DataFrame:
     return pd.DataFrame(data_rows)
 
 
+def calculate_intervention_name_mapping(
+    preprocessed_trials: Dict[str, Dict[str, Any]]
+) -> Tuple[int, int, float]:
+    """
+    Calculates the mapping statistics for unique raw intervention names.
+
+    Args:
+        preprocessed_trials (Dict[str, Dict[str, Any]]): The clinical trial data after processing.
+
+    Returns:
+        Tuple[int, int, float]: Total unique raw intervention names, mapped intervention names, and percentage mapped.
+    """
+    all_intervention_names = set()
+    mapped_intervention_names = set()
+
+    for nctid, trial in preprocessed_trials.items():
+        for study_group in trial["study_groups"]:
+            # Collect raw intervention names
+            intervention_name = (
+                study_group["intervention_details"]["name"][0]
+                .lower()
+                .replace("drug:", "")
+                .strip()
+            )
+            all_intervention_names.add(intervention_name)
+
+            # Check if this study group was mapped
+            if "canonical_name" in study_group["intervention_details"]:
+                mapped_intervention_names.add(intervention_name)
+
+    # Calculate the mapping statistics
+    total_intervention_names = len(all_intervention_names)
+    mapped_names_count = len(mapped_intervention_names)
+    mapping_percentage = (mapped_names_count / total_intervention_names) * 100
+
+    return total_intervention_names, mapped_names_count, mapping_percentage
+
+
 def main() -> None:
     """
     Main function that orchestrates the execution of the ade data mapping pipeline.
     """
     # Load data from JSON files
-    preprocessed_monopharmacy_cts_mapped = read_json_file("./data/clinicaltrials_gov/preprocessed_monopharmacy_cts.json")
-    loaded_compound_details = read_json_file("./data/unified_chemical_database/unified_chemical_database.json")
+    preprocessed_monopharmacy_cts_mapped = read_json_file(
+        "./data/clinicaltrials_gov/preprocessed_monopharmacy_cts.json"
+    )
+    loaded_compound_details = read_json_file(
+        "./data/unified_chemical_database/unified_chemical_database.json"
+    )
 
     # Count the number of unique study groups
     unique_study_group_count = count_study_groups(preprocessed_monopharmacy_cts_mapped)
@@ -638,10 +687,22 @@ def main() -> None:
 
     # Compute the final mapping percentage
     mapped_percentage = (len(all_mapped_codes) / unique_study_group_count) * 100
-    print(f"Among the {unique_study_group_count} unique study groups, {len(all_mapped_codes)} were mapped ({mapped_percentage:.2f}%)\n")
+    print(
+        f"Among the {unique_study_group_count} unique study groups, {len(all_mapped_codes)} were mapped ({mapped_percentage:.2f}%)\n"
+    )
 
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
+
+    # Calculate intervention name mapping statistics
+    (
+        total_intervention_names,
+        mapped_names_count,
+        mapping_percentage,
+    ) = calculate_intervention_name_mapping(preprocessed_monopharmacy_cts_mapped)
+    print(
+        f"Among all unique raw intervention names ({total_intervention_names}), {mapped_names_count} were mapped ({mapping_percentage:.2f}%)"
     )
 
     # Collect mapped study groups

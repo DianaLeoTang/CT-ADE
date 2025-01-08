@@ -46,7 +46,7 @@ def canonical_smiles(smiles: str) -> Optional[str]:
 
 
 def canonicalize_and_update_synonyms(
-    db: Dict[str, Dict[str, Any]]
+    db: Dict[str, Dict[str, Any]], database_name: str
 ) -> Dict[str, Dict[str, Any]]:
     """
     Canonicalizes SMILES strings in the chemical database and updates the synonyms list
@@ -55,6 +55,7 @@ def canonicalize_and_update_synonyms(
     Args:
         db: A dictionary with compound identifiers as keys and dictionaries as values,
             which include 'smiles' and 'title' keys, and possibly a 'synonyms' key.
+        database_name: The name of the database
 
     Returns:
         A dictionary containing entries with successfully canonicalized SMILES strings.
@@ -74,9 +75,11 @@ def canonicalize_and_update_synonyms(
             else:
                 if value["title"] not in value["synonyms"]:
                     value["synonyms"].append(value["title"])
+            # Add source information
+            value["source"] = f"{database_name}:{key}"
             standardized_db[key] = value
     return standardized_db
-
+    
 
 def filter_usan_by_approved(
     usan_db: Dict[str, Dict[str, Any]], approved_db: Dict[str, Dict[str, Any]]
@@ -306,24 +309,34 @@ def create_unique_clean_compounds(
 ) -> Dict[str, Dict[str, Any]]:
     """
     Processes a unified database of compounds to extract unique, clean compound information, including ATC codes.
-    The simplest title is chosen from titles only, based on the highest frequency, shortest length, and alphabetical order for ties.
-    Synonyms include a unique list of all titles and synonyms combined.
+    Adds a single "source" key to indicate all sources contributing to the unified compound.
     """
-    db_copy = deepcopy(unified_db)
+    db_copy = deepcopy(unified_db)  # Avoid modifying the original database
     unique_clean_compounds = {}
 
     for group_id, compounds in db_copy.items():
         all_titles = set()
         all_synonyms = set()
         all_atc_code = set()
+        all_sources = set()  # Single source tracking
         selected_smiles = None
+        selected_title = None
 
-        # Aggregate all titles and synonyms separately
+        # Aggregate all titles, synonyms, ATC codes, and sources
         for comp_id, details in compounds.items():
-            all_titles.add(details["title"])
-            all_synonyms.update(details.get("synonyms", []))
+            all_titles.add(details["title"])  # Gather titles
+            all_synonyms.update(details.get("synonyms", []))  # Gather synonyms
+            source_cleaned = details["source"].split("_")[0].strip()  # Remove the suffix after "_"
+            all_sources.add(source_cleaned)
+
+            # Extract and aggregate ATC codes (if available)
             if "atc_code" in details and details["atc_code"]:
-                all_atc_code.update(details["atc_code"].split(" | "))
+                atc_codes = details["atc_code"].split(" | ")
+                all_atc_code.update(atc_codes)
+
+            # Select the SMILES with the highest frequency ranking
+            if details.get("smiles_frequency_ranking", 0) == 1:
+                selected_smiles = details["smiles"]
 
         # Compute frequency of each title
         title_frequencies = {title: 0 for title in all_titles}
@@ -336,12 +349,7 @@ def create_unique_clean_compounds(
         sorted_titles = sorted(
             title_frequencies.items(), key=lambda x: (-x[1], len(x[0]), x[0])
         )
-        simplest_title = sorted_titles[0][0]
-
-        # Select the SMILES for the highest frequency ranking (existing logic)
-        for comp_id, details in compounds.items():
-            if details.get("smiles_frequency_ranking", 0) == 1:
-                selected_smiles = details["smiles"]
+        selected_title = sorted_titles[0][0]
 
         # Sort and join ATC codes
         sorted_atc_code = " | ".join(sorted(all_atc_code))
@@ -351,10 +359,11 @@ def create_unique_clean_compounds(
 
         # Organize the processed data into a new dictionary entry
         unique_clean_compounds[group_id] = {
-            "title": simplest_title,
+            "title": selected_title,
             "synonyms": list(combined_terms),
             "atc_code": sorted_atc_code,
             "smiles": selected_smiles,
+            "drug_info_source": " | ".join(sorted(all_sources)),  # Unified source field
         }
 
     return unique_clean_compounds
@@ -393,10 +402,10 @@ def main() -> None:
     cid_details = read_json_file("./data/pubchem/cid_details.json")
 
     # Standardize SMILES and update synonyms with title in each database
-    dbid_details = canonicalize_and_update_synonyms(dbid_details)
-    chembl_approved_details = canonicalize_and_update_synonyms(chembl_approved_details)
-    chembl_usan_details = canonicalize_and_update_synonyms(chembl_usan_details)
-    cid_details = canonicalize_and_update_synonyms(cid_details)
+    dbid_details = canonicalize_and_update_synonyms(dbid_details, "DrugBank")
+    chembl_approved_details = canonicalize_and_update_synonyms(chembl_approved_details, "ChEMBL")
+    chembl_usan_details = canonicalize_and_update_synonyms(chembl_usan_details, "ChEMBL")
+    cid_details = canonicalize_and_update_synonyms(cid_details, "PubChem")
 
     # Filter USAN entries that are already in the Approved database
     chembl_usan_details = filter_usan_by_approved(
