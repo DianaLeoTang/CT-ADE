@@ -88,7 +88,7 @@ You can download the publicly available CT-ADE-SOC and CT-ADE-PT versions from H
 
 Alternatively, the datasets are also available on Figshare:
 
-- [`CT-ADE-SOC` & `CT-ADE-PT`](https://figshare.com/articles/dataset/28142453)
+- [`CT-ADE-SOC & CT-ADE-PT`](https://figshare.com/articles/dataset/28142453)
 
 The above datasets are identical to the SOC and PT versions you will produce in the `Typical Pipeline from Checkpoint` section.
 
