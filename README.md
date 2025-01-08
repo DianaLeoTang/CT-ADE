@@ -79,18 +79,22 @@ Ensure you clone and install the following libraries directly from their Git rep
     └── meddra_graph.py
 ```
 
-## Download Publically Available CT-ADE-SOC and CT-ADE-PT Versions
+## Download Publically Available CT-ADE-SOC and CT-ADE-PT
 
 You can download the publicly available CT-ADE-SOC and CT-ADE-PT versions from HuggingFace. These datasets contain standardized annotations from ClinicalTrials.gov:
 
 - [`CT-ADE-SOC`](https://huggingface.co/datasets/anthonyyazdaniml/CT-ADE-SOC)
 - [`CT-ADE-PT`](https://huggingface.co/datasets/anthonyyazdaniml/CT-ADE-PT)
 
+Alternatively, the datasets are also available on Figshare:
+
+- [`CT-ADE-SOC` & `CT-ADE-PT`](https://figshare.com/articles/dataset/28142453)
+
 The above datasets are identical to the SOC and PT versions you will produce in the `Typical Pipeline from Checkpoint` section.
 
 ## Typical Pipeline from Checkpoint
 
-Follow this procedure if you aim to recreate the dataset detailed in our paper for all levels (SOC, HLGT, HLT, and PT).
+Follow this procedure if you aim to recreate the dataset detailed in our paper (CT-ADE-SOC, CT-ADE-PT).
 
 ### 1. Place your licensed data
 Place your unzipped MedDRA files in the directory `./data/MedDRA_25_0_English` and your DrugBank XML database in the directory `./data/drugbank`.
