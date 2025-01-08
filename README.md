@@ -142,6 +142,14 @@ Generate the final classification datasets for modeling.
 python g2_create_ct_ade_classification_datasets.py
 ```
 
+### 8. (Optional) Create User-Friendly Labels
+
+As an optional step, you can create a version of the dataset where MedDRA codes are replaced with user-friendly text labels. To do this, run the following command:
+
+```bash
+python g3_create_ct_ade_friendly_labels.py
+```
+
 ## Training Models
 
 ### Discriminative Models (DLLMs)
