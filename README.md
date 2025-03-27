@@ -4,11 +4,15 @@ CT-ADE: An Evaluation Benchmark for Adverse Drug Event Prediction from Clinical 
 ## Citation
 
 ```
-@article{yazdani2024ct,
-  title={CT-ADE: An Evaluation Benchmark for Adverse Drug Event Prediction from Clinical Trial Results},
-  author={Yazdani, Anthony and Bornet, Alban and Zhang, Boya and Khlebnikov, Philipp and Amini, Poorya and Teodoro, Douglas},
-  journal={arXiv preprint arXiv:2404.12827},
-  year={2024}
+@article{yazdani2025evaluation,
+  title={An Evaluation Benchmark for Adverse Drug Event Prediction from Clinical Trial Results},
+  author={Yazdani, Anthony and Bornet, Alban and Khlebnikov, Philipp and Zhang, Boya and Rouhizadeh, Hossein and Amini, Poorya and Teodoro, Douglas},
+  journal={Scientific Data},
+  volume={12},
+  number={1},
+  pages={1--12},
+  year={2025},
+  publisher={Nature Publishing Group}
 }
 ```
 
