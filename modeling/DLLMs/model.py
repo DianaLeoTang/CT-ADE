@@ -1,3 +1,8 @@
+"""
+model.py（DLLMs）
+ADE 多模态模型：文本编码器（如 PubMedBERT）+ SMILES 编码器（如 ChemBERTa）+ 标签嵌入与 MLP，
+支持负采样，输出多标签 logits 与 BCE 损失。
+"""
 import torch
 from torch import Tensor
 import torch.nn as nn

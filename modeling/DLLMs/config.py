@@ -1,3 +1,7 @@
+"""
+config.py（DLLMs）
+判别式 ADE 多标签分类模型配置：数据集路径、文本/SMILES 编码器、训练超参、负采样等。
+"""
 from utils import create_run_id
 
 class Config:

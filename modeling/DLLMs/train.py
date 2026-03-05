@@ -1,3 +1,7 @@
+"""
+train.py（DLLMs）
+加载 CT-ADE 数据与 tokenizer、构建 ADEModel、可选加载预训练权重，使用 Trainer 训练并评估，保存最佳模型与指标。
+"""
 import os
 import json
 from config import Config as cfg

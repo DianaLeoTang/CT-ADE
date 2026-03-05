@@ -1,3 +1,7 @@
+"""
+custom_metrics.py（DLLMs）
+为 HuggingFace evaluate 注册 Balanced Accuracy 指标，用于 CT-ADE 多标签分类评估。
+"""
 import datasets
 from sklearn.metrics import balanced_accuracy_score
 import evaluate

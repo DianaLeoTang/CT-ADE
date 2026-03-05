@@ -1,3 +1,7 @@
+"""
+utils.py（DLLMs）
+CT-ADE 数据加载、tokenize、标签处理、指标计算、run_id/输出目录、配置与模型保存等工具函数。
+"""
 import os
 import json
 import pandas as pd
