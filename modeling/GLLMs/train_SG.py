@@ -1,3 +1,7 @@
+"""
+train_SG.py（GLLMs）
+用「治疗描述 + SMILES」的生成式 ADE 预测：构造「group_description + SMILES -> MedDRA SOC」的 SFT 数据，训练并生成预测。
+"""
 import os
 from config import Config as cfg
 from transformers import AutoModelForCausalLM, AutoTokenizer

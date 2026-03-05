@@ -1,3 +1,7 @@
+"""
+config-llama3.py（GLLMs）
+基于 Meta-Llama-3-8B-Instruct 的 GLLM 训练配置，用于 CT-ADE SOC 多标签生成。
+"""
 class Config:
     # HF
     model_name = "meta-llama/Meta-Llama-3-8B-Instruct"

@@ -1,3 +1,7 @@
+"""
+train_S.py（GLLMs）
+仅用 SMILES 的生成式 ADE 预测：加载因果 LM + LoRA，构造「SMILES -> MedDRA SOC 列表」的 SFT 数据，训练并在测试集上生成预测。
+"""
 import os
 from config import Config as cfg
 from transformers import AutoModelForCausalLM, AutoTokenizer

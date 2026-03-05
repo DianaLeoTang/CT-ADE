@@ -1,3 +1,7 @@
+"""
+config-openbiollm.py（GLLMs）
+基于 Llama3-OpenBioLLM-8B 的 GLLM 训练配置，用于 CT-ADE SOC 多标签生成。
+"""
 class Config:
     # HF
     model_name = "aaditya/Llama3-OpenBioLLM-8B"

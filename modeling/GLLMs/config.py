@@ -1,3 +1,7 @@
+"""
+config.py（GLLMs）
+生成式 ADE 预测默认配置：HF 模型名、LoRA、训练与生成超参、chat 模板等。可被 config-llama3/config-meditron/config-openbiollm 覆盖。
+"""
 class Config:
     # HF
     model_name = "epfl-llm/meditron-70b"

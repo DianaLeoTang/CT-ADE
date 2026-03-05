@@ -1,3 +1,7 @@
+"""
+config-meditron.py（GLLMs）
+基于 Meditron-7B 的 GLLM 训练配置，用于 CT-ADE SOC 多标签生成。
+"""
 class Config:
     # HF
     model_name = "epfl-llm/meditron-7b"
