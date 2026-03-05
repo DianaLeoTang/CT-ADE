@@ -1,3 +1,7 @@
+"""
+b0_download_pubchem_cids.py
+从 PubChem 按 ClinicalTrials.gov 标注分页拉取化合物 CID，去重后保存为 unique_cids.json。
+"""
 import json
 import logging
 import requests
@@ -36,6 +40,7 @@ def fetch_and_collect_cids(
             response = requests.get(url)
             if response.status_code == 200:
                 data = response.json()
+                # 从当前页的 JSON 中解析出 CID 列表
                 page_cids = parse_cids(data)
                 cids.extend(page_cids)
                 logging.info(
@@ -66,6 +71,7 @@ def parse_cids(data: dict) -> List[int]:
     cids = []
     annotations = data.get("Annotations", {}).get("Annotation", [])
     for annotation in annotations:
+        # 每个 Annotation 的 LinkedRecords 里可能有多个 CID
         linked_cids = annotation.get("LinkedRecords", {}).get("CID", [])
         cids.extend(linked_cids)
     return cids

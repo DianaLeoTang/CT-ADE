@@ -1,3 +1,7 @@
+"""
+a1_extract_completed_or_terminated_interventional_results_clinical_trials.py
+从全部临床试验 JSON 中筛选「已完成/已终止」「干预性」「含结果」的试验，并复制到目标目录。
+"""
 import json
 from pathlib import Path
 from shutil import copy2

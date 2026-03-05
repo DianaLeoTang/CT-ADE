@@ -1,3 +1,8 @@
+"""
+g1_create_ct_ade_meddra.py
+对 ct_ade_raw 中的 ade_term / ade_organ_system 做 MedDRA 映射（LLT/PT/HLT/HLGT/SOC），
+补全路径、填充缺失层级，输出 ct_ade_meddra.csv。
+"""
 from typing import Dict, List, Tuple, Set, Optional, Callable, Any
 from src.meddra_graph import MedDRA, Node
 import pandas as pd

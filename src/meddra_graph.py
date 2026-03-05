@@ -1,3 +1,8 @@
+"""
+meddra_graph.py
+MedDRA 层级图：从 MedAscii 目录加载 SOC/HLGT/HLT/PT/LLT 节点与层级关系，
+支持按术语查找节点、从某节点向上找所有路径，供 g1/g2 等脚本做 ADE 映射与层级补全。
+"""
 import os
 from typing import Dict, Tuple, List, Set
 

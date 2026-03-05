@@ -1,3 +1,8 @@
+"""
+a2_extract_and_preprocess_monopharmacy_clinical_trials.py
+对「已完成/已终止且含结果」的临床试验 JSON 做单药预处理：先简单匹配再组解析匹配，
+合并两种策略得到单药试验与不良事件对应关系，输出 preprocessed_monopharmacy_cts.json。
+"""
 import copy
 import json
 import multiprocessing

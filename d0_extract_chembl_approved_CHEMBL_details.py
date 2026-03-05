@@ -1,3 +1,7 @@
+"""
+d0_extract_chembl_approved_CHEMBL_details.py
+从 ChEMBL 已批准药物 CSV 中提取药物 ID、名称、同义词、SMILES、ATC 等，保存为 chembl_approved_details.json。
+"""
 from pathlib import Path
 import json
 import pandas as pd
@@ -30,7 +34,7 @@ def extract_chembl_data(csv_file_path: str) -> dict:
                 'atc_code': row['ATC Codes'] if (row['ATC Codes'] and pd.notna(row['ATC Codes'])) else None,
             }
             
-            chembl_info_dict[f"{chembl_id}_approved"] = drug_info
+            chembl_info_dict[f"{chembl_id}_approved"] = drug_info  # 键带 _approved 后缀以区分来源
 
     return chembl_info_dict
 

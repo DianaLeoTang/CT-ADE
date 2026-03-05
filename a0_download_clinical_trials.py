@@ -1,3 +1,7 @@
+"""
+a0_download_clinical_trials.py
+从 ClinicalTrials.gov 下载全部临床试验 API 的 ZIP 包，并解压到本地目录。
+"""
 import wget
 import zipfile
 from pathlib import Path

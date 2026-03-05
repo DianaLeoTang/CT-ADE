@@ -1,3 +1,8 @@
+"""
+g3_create_ct_ade_friendly_labels.py
+将 SOC/HLGT/HLT/PT 分类数据集中以 MedDRA 代码命名的列（label_*、frequency_*）改为可读的 MedDRA 术语，
+输出到 soc_friendly、hlgt_friendly、hlt_friendly、pt_friendly 目录。
+"""
 import pandas as pd
 import os
 from src.meddra_graph import MedDRA, Node
@@ -42,9 +47,11 @@ def rename_columns_by_prefix(input_file, output_file, string_start, rename_dict)
         print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
+    # 加载 MedDRA 用于 code -> term 的映射
     meddra = MedDRA()
     meddra.load_data("./data/MedDRA_25_0_English/MedAscii")
     
+    # 按 SOC/HLGT/HLT/PT 分别将 label_*、frequency_* 列从代码改为可读术语并保存到 *_friendly 目录
     level = "SOC"
     rename_dict = {key[1]: value.term for key, value in meddra.nodes.items() if key[0] == level}
     rename_columns_by_prefix("./data/ct_ade/soc/train.csv", "./data/ct_ade/soc_friendly/train.csv", "label_", rename_dict)

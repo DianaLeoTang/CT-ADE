@@ -1,3 +1,7 @@
+"""
+c0_extract_drugbank_dbid_details.py
+从 DrugBank 的 full database XML 中提取药物 dbid、名称、同义词、SMILES、ATC 等信息并保存为 JSON。
+"""
 import xml.etree.ElementTree as ET
 from typing import Dict
 from tqdm.auto import tqdm
@@ -17,6 +21,7 @@ def extract_drug_data(xml_file_path: str) -> Dict[str, Dict[str, list]]:
     """
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
+    # DrugBank XML 使用命名空间
     ns = {'db': 'http://www.drugbank.ca'}
     dbid_info_dict = {}
     

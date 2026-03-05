@@ -1,3 +1,8 @@
+"""
+g2_create_ct_ade_classification_datasets.py
+基于 ct_ade_meddra 构建分类数据集：Wilson 下界显著性、事件类型分类、SOC/HLGT/HLT/PT 多标签与频次，
+按 SMILES 划分 train/val/test，输出 event_type、soc、hlgt、hlt、pt 等目录下的 CSV。
+"""
 import pandas as pd
 import numpy as np
 from statsmodels.stats.proportion import proportion_confint

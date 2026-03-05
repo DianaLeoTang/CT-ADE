@@ -1,3 +1,8 @@
+"""
+g0_create_ct_ade_raw.py
+将预处理后的单药临床试验与统一化学库匹配：用同义词/标题做精确与部分匹配（含清洗），
+收集已匹配的 study group，表格化后得到 ct_ade_raw.csv（原始 ADE 表，尚未做 MedDRA 标注）。
+"""
 import json
 from pathlib import Path
 from nltk.corpus import stopwords

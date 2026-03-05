@@ -1,3 +1,7 @@
+"""
+b1_download_pubchem_cid_details.py
+根据 unique_cids.json 中的 CID，从 PubChem 拉取标题、同义词、SMILES、ATC 等详情并保存。
+"""
 import json
 from pathlib import Path
 import logging
@@ -134,6 +138,7 @@ def fetch_atc(cid: str, retries: int = 5, delay: int = 2) -> Optional[str]:
 
             data = response.json()
 
+            # 递归从嵌套 JSON 中提取指定 key 的所有值（用于找 ATC 相关 URL）
             def json_extract(obj, key):
                 arr = []
 
@@ -152,6 +157,7 @@ def fetch_atc(cid: str, retries: int = 5, delay: int = 2) -> Optional[str]:
                 return extract(obj, arr, key)
 
             urls = json_extract(data, "URL")
+            # 从 WHOCC 链接中解析 ATC 编码，取最长的一个作为代表
             atc_codes = [
                 url.split("=")[1].split("&")[0]
                 for url in urls

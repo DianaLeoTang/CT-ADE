@@ -1,3 +1,8 @@
+"""
+f0_create_unified_chemical_database.py
+合并 DrugBank、ChEMBL 已批准、ChEMBL USAN、PubChem 的化合物数据：标准化 SMILES、去重同义词、
+用并查集按 SMILES/标题合并、清理冲突同义词、频次排序后生成统一化学数据库 JSON。
+"""
 import json
 from typing import Optional, Dict, Any, Tuple, List
 from rdkit import Chem
